@@ -10,17 +10,15 @@ def index():
 @app.route("/emotionDetector", methods=["GET", "POST"])
 def emotion_detect():
     if request.method == "POST":
-        text_to_analyze = request.form['textToAnalyze']
+        text_to_analyze = request.form.get("textToAnalyze", "")
     else:
-        text_to_analyze = request.args.get('textToAnalyze')
-
-    if not text_to_analyze:
-        return "Please enter valid text to analyze."
+        text_to_analyze = request.args.get("textToAnalyze", "")
 
     response = emotion_detector(text_to_analyze)
 
-    if not response:
-        return "Invalid input or model error."
+    # 💥 Handle invalid text
+    if response['dominant_emotion'] is None:
+        return "Invalid text! Please try again!"
 
     anger = response['anger']
     disgust = response['disgust']
