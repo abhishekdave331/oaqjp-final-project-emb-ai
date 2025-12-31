@@ -7,19 +7,21 @@ app = Flask(__name__)
 def index():
     return render_template("index.html")
 
-@app.route("/emotionDetector", methods=["POST"])
+@app.route("/emotionDetector", methods=["GET", "POST"])
 def emotion_detect():
-    # Get text from form
-    text_to_analyze = request.form['textToAnalyze']
+    if request.method == "POST":
+        text_to_analyze = request.form['textToAnalyze']
+    else:
+        text_to_analyze = request.args.get('textToAnalyze')
 
-    # Run through our package
+    if not text_to_analyze:
+        return "Please enter valid text to analyze."
+
     response = emotion_detector(text_to_analyze)
 
-    # If the API returns None or fails
-    if response is None or response == {}:
-        return "Invalid text! Please try again."
+    if not response:
+        return "Invalid input or model error."
 
-    # Format response for output
     anger = response['anger']
     disgust = response['disgust']
     fear = response['fear']
